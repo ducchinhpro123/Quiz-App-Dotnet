@@ -32,8 +32,8 @@
         {
             var question = Model.Quiz.Questions.ElementAt(i);
             <div class="question-block mb-4">
-                <h4>@(i + 1). @question.QuestionText</h4>
-
+                @* NOTE: This solution is temporary *@
+                <h4>@question.QuestionID. @question.QuestionText</h4>
                 @if (question.Answers != null && question.Answers.Any())
                 {
                     <div class="answer-options">

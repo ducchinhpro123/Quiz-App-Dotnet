@@ -71,6 +71,27 @@ namespace QuizApp.Controllers
 
             var quiz = _context.Quiz.Include(q => q.Questions)
                 .ThenInclude(a => a.Answers).FirstOrDefault(m => m.QuizID == quizId);
+            // This filter the question that user answer incorrect
+
+            var questionAnsweredIncorrect = new List<Question>();
+
+            foreach (var q in quiz.Questions)
+            {
+                if (userAnswers.TryGetValue(q.QuestionID, out int userAnswerId))
+                {
+                    var answer = q.Answers.FirstOrDefault(a => a.AnswerID == userAnswerId);
+                    if (answer != null && !answer.IsCorrect)
+                    {
+                        questionAnsweredIncorrect.Add(q);
+                    }
+                }
+                else
+                {
+                    questionAnsweredIncorrect.Add(q);
+                }
+            }
+
+            quiz.Questions = questionAnsweredIncorrect;
 
             var viewModel = new QuizSummaryViewModel
             {
