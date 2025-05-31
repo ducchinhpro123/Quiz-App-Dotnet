@@ -1,0 +1,79 @@
+@model QuizApp.Models.Quiz
+
+@{
+    ViewData["Title"] = "Take Quiz";
+    // https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#Roundtrip
+    var quizStartTime = DateTime.UtcNow.ToString("o");
+}
+
+<center><h2>@Model.QuizTitle</h2></center>
+<br>
+
+@if (Model.Questions == null || !Model.Questions.Any())
+{
+    <p>This quiz currently has no questions.</p>
+}
+else
+{
+    <form asp-action="SubmitQuiz" asp-controller="Quizzes" method="post">
+
+        <input type="hidden" name="quizId" value="@Model.QuizID" />
+        <input type="hidden" name="quizStartTime" value="@quizStartTime" />
+
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            var question = Model.Questions.ElementAt(i);
+            <div class="question-block mb-4">
+                <h4>@(i + 1). @question.QuestionText</h4>
+
+                @if (question.Answers != null && question.Answers.Any())
+                {
+                    <div class="answer-options">
+                        @foreach (var answer in question.Answers)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" 
+                                       name="userAnswers[@question.QuestionID]" 
+                                       id="answer_@answer.AnswerID" 
+                                       value="@answer.AnswerID"
+                                       data-question-id="@question.QuestionID"
+                                       required />
+                                <label class="form-check-label" for="answer_@answer.AnswerID">
+                                    @answer.AnswerText
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p><em>This question has no answer options.</em></p>
+                }
+            </div>
+        }
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">Submit Quiz</button>
+        </div>
+    </form>
+}
+
+<script>
+    // IN USER STORY 3: I was thinking, if we provide the feedback to indicating if the answer correct or not
+    // so, what is the point of sumarying.
+
+    // document.querySelectorAll('.form-check-input[type="radio"]').forEach(r => {
+    //     r.addEventListener('change', function() {
+    //         let questionId = this.dataset.questionId;
+    //         document.querySelectorAll('.feedback-message[data-question-id="' + questionId + '"]').forEach(f => f.remove());
+
+    //         let feedback = document.createElement('span');
+    //         feedback.className = 'text-info ms-2 feedback-message';
+    //         feedback.dataset.questionId = questionId;
+    //         feedback.textContent = 'Selected!';
+    //         this.closest('.answer-options').appendChild(feedback);
+
+    //         console.log('User selected answer ' + this.value + ' for question ' + questionId);
+    //     });
+    // })
+</script>

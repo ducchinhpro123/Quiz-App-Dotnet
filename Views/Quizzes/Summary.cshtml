@@ -1,0 +1,85 @@
+@model QuizApp.Models.QuizSummaryViewModel
+@* @model QuizApp.Models.Quiz *@
+
+@{
+    ViewData["Title"] = "Summary";
+
+    @* var quiz = QuizSummaryViewModel.Quiz; *@
+    @* var userAnswers = QuizSummaryViewModel.UserAnswers; *@
+    @* var score = QuizSummaryViewModel.Score; *@
+    @* var totalQuestions = QuizSummaryViewModel.TotalQuestions; *@
+    @* var timeTakenString = QuizSummaryViewModel.TimeTaken; *@
+}
+
+<p>You have @Model.Score scores </p>
+<p class="mb-0">Time taken: <strong>@Model.TimeTaken</strong> (hh:mm:ss).</p>
+
+@if (Model.Score >= 0 && Model.TotalQuestions >= 0 && Model.QuizID >= 0)
+{
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Well Done!</h4>
+        <p>You have completed the quiz.</p>
+        <hr>
+        <p class="mb-0">Your score: <strong>@Model.Score</strong> out of <strong>@Model.TotalQuestions</strong>.</p>
+    </div>
+
+    <div>
+        <p>Quiz ID: @Model.QuizID</p>
+    </div>
+
+    <div>
+        @for (int i = 0; i < Model.Quiz.Questions.Count; i++)
+        {
+            var question = Model.Quiz.Questions.ElementAt(i);
+            <div class="question-block mb-4">
+                <h4>@(i + 1). @question.QuestionText</h4>
+
+                @if (question.Answers != null && question.Answers.Any())
+                {
+                    <div class="answer-options">
+                        @foreach (var answer in question.Answers)
+                        {
+                            var isUserAnswer = Model.UserAnswers != null
+                                && Model.UserAnswers.ContainsKey( question.QuestionID )
+                                && Model.UserAnswers[question.QuestionID] == answer.AnswerID;
+
+                            var isCorrectAnswer = answer.IsCorrect;
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" 
+                                       name="userAnswers[@question.QuestionID]" 
+                                       id="answer_@answer.AnswerID" 
+                                       value="@answer.AnswerID"
+                                       disabled=@(isUserAnswer ? "checked" : "")
+
+                                       required />
+                                <label class="form-check-label 
+                                       @(isCorrectAnswer ? "text-success fw-bold" : "") 
+                                       @(isUserAnswer && isCorrectAnswer ? "text-success fw-bold" : "") 
+                                       @(isUserAnswer && !isCorrectAnswer ? "text-danger" : "")" for="answer_@answer.AnswerID">
+                                    @answer.AnswerText
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p><em>This question has no answer options.</em></p>
+                }
+            </div>
+        }
+
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="TakeQuiz" asp-route-id="@Model.QuizID" class="btn btn-primary">Try Again</a>
+        <a asp-action="Index" asp-controller="Quizzes" class="btn btn-secondary">Back to Quizzes</a>
+    </div>
+}
+else
+{
+    <p>Nothing to display, something isn't right</p>
+}
+
+

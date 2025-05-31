@@ -1,0 +1,4 @@
+bin/
+obj/
+QuizApp.db
+Migrations/
